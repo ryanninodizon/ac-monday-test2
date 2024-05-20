@@ -1,0 +1,43 @@
+name: Trigger auto deployment for ca-monday-test2
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/ca-monday-test2-AutoDeployTrigger-97718d31-d0e8-429b-a363-b4e266279a1b.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:
+      
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.CAMONDAYTEST2_AZURE_CREDENTIALS }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }} 
+          registryUrl: cacefdf92799acr.azurecr.io
+          registryUsername: ${{ secrets.CAMONDAYTEST2_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.CAMONDAYTEST2_REGISTRY_PASSWORD }}
+          containerAppName: ca-monday-test2
+          resourceGroup: rg-monday-testings
+          imageToBuild: cacefdf92799acr.azurecr.io/ca-monday-test2:${{ github.sha }}
+          
+            
+
+     
+
